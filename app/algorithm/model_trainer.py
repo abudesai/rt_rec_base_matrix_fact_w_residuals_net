@@ -36,8 +36,8 @@ def get_trained_model(data, data_schema, hyper_params):
     # preprocess data
     print("Pre-processing data...")
     train_data, _, preprocess_pipe = preprocess_data(train_data, None, data_schema)  
-    train_X, train_y = train_data['X'], train_data['y']  
-    # print('train_X/y shape:',  train_X.shape, train_y.shape)     
+    train_X, train_y = train_data['X'], train_data['y']
+    print('train_X/y shape:',  train_X.shape, train_y.shape)   
               
     # Create and train model     
     print('Fitting model ...')  
@@ -61,8 +61,7 @@ def train_model(train_X, train_y, hyper_params, verbose=0):
             X=train_X, 
             y=train_y, 
             validation_split=model_cfg["valid_split"],
-            epochs=30,
-            batch_size=256, 
+            epochs=100,
             verbose=verbose,
         )  
     

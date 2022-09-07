@@ -13,7 +13,7 @@ from tensorflow.keras.optimizers import SGD, Adam
 from tensorflow.keras.callbacks import EarlyStopping, ReduceLROnPlateau, Callback
 
 
-MODEL_NAME = "MatrixFactorizer_w_Residuals_Net"
+MODEL_NAME = "recommender_base_matrix_factorizer_with_residual_net"
 
 model_params_fname = "model_params.save"
 model_wts_fname = "model_wts.save"
@@ -35,12 +35,13 @@ class InfCostStopCallback(Callback):
 
 class Recommender():
 
-    def __init__(self, N, M, K, l2_reg=0., lr = 0.1, momentum = 0.9, **kwargs  ):
+    def __init__(self, N, M, K=10, l2_reg=1e-9, lr = 0.08, momentum = 0.9, batch_size=256, **kwargs  ):
         self.N = N
         self.M = M
         self.K = K
         self.l2_reg = l2_reg
         self.lr = lr
+        self.batch_size = batch_size
         self.momentum = momentum
 
         self.model = self.build_model()
@@ -87,7 +88,7 @@ class Recommender():
         return model
 
 
-    def fit(self, X, y, validation_split=None, batch_size=256, epochs=25, verbose=0): 
+    def fit(self, X, y, validation_split=None, epochs=100, verbose=0): 
                 
         early_stop_loss = 'val_loss' if validation_split is not None else 'loss'
         early_stop_callback = EarlyStopping(monitor=early_stop_loss, min_delta = 1e-4, patience=3) 
@@ -97,7 +98,7 @@ class Recommender():
                 x = [ X[:, 0], X[:, 1] ],
                 y = y, 
                 validation_split = validation_split,
-                batch_size = batch_size,
+                batch_size = self.batch_size,
                 epochs=epochs,
                 verbose=verbose,
                 shuffle=True,
@@ -174,4 +175,4 @@ def save_training_history(history, f_path):
     hist_df = pd.DataFrame(history.history) 
     hist_json_file = os.path.join(f_path, history_fname)
     with open(hist_json_file, mode='w') as f:
-        hist_df.to_json(f, indent=4)
+        hist_df.to_json(f, indent=2)
